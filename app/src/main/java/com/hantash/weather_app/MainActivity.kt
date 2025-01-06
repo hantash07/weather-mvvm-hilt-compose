@@ -11,37 +11,32 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import com.hantash.weather_app.ui.navigation.ScreenNavigation
 import com.hantash.weather_app.ui.theme.WeatherappcomposeTheme
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            WeatherappcomposeTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "Android",
-                        modifier = Modifier.padding(innerPadding)
-                    )
-                }
+            WeatherApp {
+                ScreenNavigation()
             }
         }
     }
 }
 
 @Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
+fun WeatherApp(content: @Composable () -> Unit) {
+    WeatherappcomposeTheme {
+        content()
+    }
 }
 
 @Preview(showBackground = true)
 @Composable
 fun GreetingPreview() {
-    WeatherappcomposeTheme {
-        Greeting("Android")
-    }
+    WeatherApp {  }
 }

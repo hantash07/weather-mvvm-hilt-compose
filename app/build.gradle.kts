@@ -70,6 +70,13 @@ dependencies {
     implementation(libs.retrofit2.converter)
     implementation(libs.retrofit2.okHttp3)
 
+    //Coil
+    implementation(libs.coil3.compose)
+    implementation(libs.coil3.network)
+
+    //Navigation
+    implementation(libs.androidx.navigation)
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
