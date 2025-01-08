@@ -13,6 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.hantash.weather_app.ui.navigation.ScreenNavigation
 import com.hantash.weather_app.ui.theme.WeatherappcomposeTheme
+import com.hantash.weather_app.viewmodel.WeatherViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint

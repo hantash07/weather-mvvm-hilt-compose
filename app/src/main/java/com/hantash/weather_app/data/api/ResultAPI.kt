@@ -1,9 +1,7 @@
 package com.hantash.weather_app.data.api
 
-import com.hantash.weather_app.model.WeatherResponse
-
-sealed class ResultAPI {
-    class SUCCESS(val weatherResponse: WeatherResponse?): ResultAPI()
-    data object FAILURE: ResultAPI()
-    data object INITIATE: ResultAPI()
-}
+class ResultAPI<T, Boolean, E: Exception>(
+    var data: T? = null,
+    var isLoading: kotlin.Boolean = false,
+    var exception: E? = null,
+)

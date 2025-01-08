@@ -56,6 +56,9 @@ dependencies {
     implementation(libs.dagger.hilt)
     kapt(libs.dagger.hilt.compiler)
 
+    //Hilt-Compose
+    implementation(libs.hilt.navigation.compose)
+
     //Coroutines
     implementation(libs.coroutines.core)
     implementation(libs.coroutines.android)
