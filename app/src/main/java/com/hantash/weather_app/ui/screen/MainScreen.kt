@@ -23,7 +23,6 @@ import androidx.compose.runtime.produceState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -66,7 +65,7 @@ fun MainScreen(navController: NavController) {
     }
 }
 
-//@Preview
+@Preview
 @Composable
 private fun ScreenContent(
     navController: NavController? = null,
@@ -93,7 +92,7 @@ private fun ScreenContent(
             ) {
                 Text(
                     modifier = Modifier.padding(top = 16.dp),
-                    text = formatDate(weatherResponse?.list?.first()?.dt ?: 0),
+                    text = formatDate(weatherResponse?.list?.first()?.dt?.toLong() ?: 0),
                     style = MaterialTheme.typography.titleMedium
                 )
 
@@ -165,9 +164,8 @@ private fun ScreenContent(
     )
 }
 
-@Preview
 @Composable
-private fun WeatherItem(weather: Item0? = null) {
+private fun WeatherItem(weather: Item0) {
     Column {
         Row(
             modifier = Modifier
@@ -177,13 +175,13 @@ private fun WeatherItem(weather: Item0? = null) {
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Text(
-                text = formatDateDayOnly(weather?.dt ?: 0),
+                text = formatDateDayOnly(weather.dt.toLong()),
                 style = TextStyle(
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Bold,
                 )
             )
-            AppImage(url = generateImageUrl(weather?.weather?.first()?.icon))
+            AppImage(url = generateImageUrl(weather.weather.first().icon))
             Surface(
                 shape = RoundedCornerShape(12.dp),
                 color = Color(0xFFFFC400)
@@ -192,7 +190,7 @@ private fun WeatherItem(weather: Item0? = null) {
                     modifier = Modifier
                         .background(Color(0xFFFFC400))
                         .padding(vertical = 6.dp, horizontal = 10.dp),
-                    text = "${weather?.weather?.first()?.description}",
+                    text = weather.weather.first().description,
                     style = TextStyle(
                         fontSize = 14.sp,
                         fontWeight = FontWeight.Normal,
@@ -207,7 +205,7 @@ private fun WeatherItem(weather: Item0? = null) {
                         fontWeight = FontWeight.SemiBold
                     )
                 ) {
-                    append("${formatDecimals(weather?.temp?.max ?: 0.0)}°")
+                    append("${formatDecimals(weather.temp.max)}°")
                 }
                 withStyle(
                     style = SpanStyle(
