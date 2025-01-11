@@ -1,6 +1,5 @@
 package com.hantash.weather_app.ui.screen
 
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -41,10 +40,9 @@ import com.hantash.weather_app.model.WeatherResponse
 import com.hantash.weather_app.ui.components.AppImage
 import com.hantash.weather_app.ui.components.AppTextIcon
 import com.hantash.weather_app.ui.components.BaseAppBar
-import com.hantash.weather_app.utils.formatDate
-import com.hantash.weather_app.utils.formatDateDayOnly
+import com.hantash.weather_app.utils.EnumDateFormat
+import com.hantash.weather_app.utils.formatDateTime
 import com.hantash.weather_app.utils.formatDecimals
-import com.hantash.weather_app.utils.formatTime
 import com.hantash.weather_app.utils.generateImageUrl
 import com.hantash.weather_app.viewmodel.WeatherViewModel
 
@@ -92,7 +90,7 @@ private fun ScreenContent(
             ) {
                 Text(
                     modifier = Modifier.padding(top = 16.dp),
-                    text = formatDate(weatherResponse?.list?.first()?.dt?.toLong() ?: 0),
+                    text = formatDateTime(weatherResponse?.list?.first()?.dt?.toLong(), EnumDateFormat.EEE_D_MMM),
                     style = MaterialTheme.typography.titleMedium
                 )
 
@@ -145,11 +143,11 @@ private fun ScreenContent(
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     AppTextIcon(
-                        text = formatTime(weather?.sunrise ?: 0),
+                        text = formatDateTime(weather?.sunrise?.toLong(), EnumDateFormat.HH_MM_A),
                         resourceId = R.drawable.ic_sunrise
                     )
                     AppTextIcon(
-                        text = formatTime(weather?.sunset ?: 0),
+                        text = formatDateTime(weather?.sunset?.toLong(), EnumDateFormat.HH_MM_A),
                         resourceId = R.drawable.ic_sunset
                     )
                 }
@@ -175,7 +173,7 @@ private fun WeatherItem(weather: Item0) {
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Text(
-                text = formatDateDayOnly(weather.dt.toLong()),
+                text = formatDateTime(weather.dt.toLong(), EnumDateFormat.EEE),
                 style = TextStyle(
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Bold,
@@ -212,7 +210,7 @@ private fun WeatherItem(weather: Item0) {
                         color = Color.Gray,
                     )
                 ) {
-                    append("${formatDecimals(weather?.temp?.min ?: 0.0)}°")
+                    append("${formatDecimals(weather.temp.min)}°")
                 }
             })
         }

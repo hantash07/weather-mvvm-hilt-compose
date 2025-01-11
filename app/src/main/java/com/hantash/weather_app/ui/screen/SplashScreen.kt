@@ -45,7 +45,11 @@ fun SplashScreen(navController: NavController? = null) {
             )
         )
         delay(1000)
-        navController?.navigate(EnumScreen.MAIN_SCREEN.name)
+
+        //Navigating into Main Screen and Removing the Splash Screen in BackStack
+        navController?.navigate(EnumScreen.MAIN_SCREEN.name) {
+            popUpTo(EnumScreen.SPLASH_SCREEN.name) {inclusive = true}
+        }
     })
 
     Box(modifier = Modifier.fillMaxSize()) {
