@@ -40,6 +40,8 @@ import com.hantash.weather_app.model.WeatherResponse
 import com.hantash.weather_app.ui.components.AppImage
 import com.hantash.weather_app.ui.components.AppTextIcon
 import com.hantash.weather_app.ui.components.BaseAppBar
+import com.hantash.weather_app.ui.components.EnumAppBarAction
+import com.hantash.weather_app.ui.navigation.EnumScreen
 import com.hantash.weather_app.utils.EnumDateFormat
 import com.hantash.weather_app.utils.formatDateTime
 import com.hantash.weather_app.utils.formatDecimals
@@ -47,16 +49,16 @@ import com.hantash.weather_app.utils.generateImageUrl
 import com.hantash.weather_app.viewmodel.WeatherViewModel
 
 @Composable
-fun MainScreen(navController: NavController) {
+fun MainScreen(navController: NavController, countryName: String? = null) {
     val viewModel = hiltViewModel<WeatherViewModel>()
 
     val weatherData = produceState<ResultAPI<WeatherResponse, Boolean, Exception>>(
         initialValue = ResultAPI(isLoading = true)
     ) {
-        value = viewModel.fetchCurrentWeather("Istanbul")
+        value = viewModel.fetchCurrentWeather(countryName ?: "Istanbul")
     }.value
 
-    if (weatherData.isLoading) {
+    if (weatherData.isLoading && weatherData.data != null) {
         CircularProgressIndicator()
     } else if (weatherData.data != null) {
         ScreenContent(navController, weatherData.data)
@@ -78,6 +80,9 @@ private fun ScreenContent(
         topBar = {
             BaseAppBar(
                 title = title,
+                onActionButtonClicked = { enumAction ->
+                    navigateTo(navController, enumAction)
+                }
             )
         },
         content = { innerPadding ->
@@ -222,7 +227,12 @@ private fun WeatherItem(weather: Item0) {
     }
 }
 
-
+private fun navigateTo(navController: NavController?, enumAction: EnumAppBarAction) {
+    when(enumAction) {
+        EnumAppBarAction.SEARCH -> navController?.navigate(EnumScreen.SEARCH_SCREEN.name)
+        EnumAppBarAction.MORE -> {}
+    }
+}
 
 
 

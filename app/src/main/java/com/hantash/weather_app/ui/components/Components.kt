@@ -28,10 +28,22 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.unit.sp
 import com.hantash.weather_app.R
 import com.hantash.weather_app.ui.navigation.EnumScreen
+
+enum class EnumAppBarAction {
+    SEARCH,
+    MORE
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Preview
@@ -39,7 +51,7 @@ import com.hantash.weather_app.ui.navigation.EnumScreen
 fun BaseAppBar(
     title: String = "Country Name",
     enumScreen: EnumScreen = EnumScreen.MAIN_SCREEN,
-    onActionButtonClicked: () -> Unit = {},
+    onActionButtonClicked: (EnumAppBarAction) -> Unit = {},
     onBackButtonClicked: () -> Unit = {}
 ) {
     TopAppBar(
@@ -55,13 +67,17 @@ fun BaseAppBar(
         },
         actions = {
             if (enumScreen == EnumScreen.MAIN_SCREEN) {
-                IconButton(onClick = {}) {
+                IconButton(onClick = {
+                    onActionButtonClicked.invoke(EnumAppBarAction.SEARCH)
+                }) {
                     Icon(
                         imageVector = Icons.Default.Search,
                         contentDescription = "Search Icon"
                     )
                 }
-                IconButton(onClick = {}) {
+                IconButton(onClick = {
+                    onActionButtonClicked.invoke(EnumAppBarAction.MORE)
+                }) {
                     Icon(
                         modifier = Modifier.padding(4.dp),
                         imageVector = Icons.Rounded.MoreVert,
@@ -113,6 +129,35 @@ fun AppTextIcon(text: String = "Preview", resourceId: Int = R.drawable.ic_humidi
     }
 }
 
+@Preview(showBackground = true)
+@Composable
+fun AppSearchField(
+    modifier: Modifier = Modifier,
+    value: String = "",
+    label: String = "",
+    onValueChange: (String) -> Unit = {},
+    keyboardType: KeyboardType = KeyboardType.Text,
+    imeActions: ImeAction = ImeAction.Search,
+    keyboardActions: KeyboardActions = KeyboardActions.Default,
+) {
+    OutlinedTextField(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(16.dp),
+        value = value,
+        onValueChange = onValueChange,
+        label = { Text(label) },
+        textStyle = TextStyle(
+            fontSize = 18.sp,
+            color = Color.Black
+        ),
+        keyboardOptions = KeyboardOptions(
+            keyboardType = keyboardType,
+            imeAction = imeActions,
+        ),
+        keyboardActions = keyboardActions,
+    )
+}
 
 
 

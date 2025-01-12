@@ -2,15 +2,18 @@ package com.hantash.weather_app.ui.navigation
 
 import androidx.compose.runtime.Composable
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.hantash.weather_app.ui.screen.AboutScreen
 import com.hantash.weather_app.ui.screen.FavoriteScreen
 import com.hantash.weather_app.ui.screen.MainScreen
 import com.hantash.weather_app.ui.screen.SearchScreen
 import com.hantash.weather_app.ui.screen.SettingsScreen
 import com.hantash.weather_app.ui.screen.SplashScreen
+import com.hantash.weather_app.utils.Constant
 import com.hantash.weather_app.viewmodel.WeatherViewModel
 
 @Composable
@@ -24,8 +27,11 @@ fun ScreenNavigation() {
             SplashScreen(navController)
         }
 
-        composable(route = EnumScreen.MAIN_SCREEN.name) {
-            MainScreen(navController)
+        composable(
+            route = EnumScreen.MAIN_SCREEN.name
+        ) {
+            val country = navController.previousBackStackEntry?.savedStateHandle?.get<String>(Constant.KEY_COUNTRY)
+            MainScreen(navController, country)
         }
 
         composable(route = EnumScreen.ABOUT_SCREEN.name) {
