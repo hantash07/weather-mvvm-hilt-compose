@@ -24,14 +24,24 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil3.compose.rememberAsyncImagePainter
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.FavoriteBorder
+import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
@@ -42,8 +52,11 @@ import com.hantash.weather_app.ui.navigation.EnumScreen
 
 enum class EnumAppBarAction {
     SEARCH,
-    MORE
+    FAVORITE,
+    ABOUT,
+    SETTINGS
 }
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Preview
@@ -54,6 +67,10 @@ fun BaseAppBar(
     onActionButtonClicked: (EnumAppBarAction) -> Unit = {},
     onBackButtonClicked: () -> Unit = {}
 ) {
+    val appBarMenuState = remember {
+        mutableStateOf(false)
+    }
+    
     TopAppBar(
         modifier = Modifier
             .shadow(elevation = 8.dp),
@@ -67,22 +84,36 @@ fun BaseAppBar(
         },
         actions = {
             if (enumScreen == EnumScreen.MAIN_SCREEN) {
-                IconButton(onClick = {
-                    onActionButtonClicked.invoke(EnumAppBarAction.SEARCH)
-                }) {
+                IconButton(onClick = { onActionButtonClicked.invoke(EnumAppBarAction.SEARCH) }) {
                     Icon(
                         imageVector = Icons.Default.Search,
                         contentDescription = "Search Icon"
                     )
                 }
-                IconButton(onClick = {
-                    onActionButtonClicked.invoke(EnumAppBarAction.MORE)
-                }) {
+                IconButton(onClick = { appBarMenuState.value = !appBarMenuState.value }) {
                     Icon(
                         modifier = Modifier.padding(4.dp),
                         imageVector = Icons.Rounded.MoreVert,
                         contentDescription = "Search Icon"
                     )
+                }
+                DropdownMenu(
+                    modifier = Modifier.background(color = Color.White),
+                    expanded = appBarMenuState.value,
+                    onDismissRequest = {appBarMenuState.value = false}
+                ) {
+                    AppDropDownMenuItem("Favorites", Icons.Default.Favorite) {
+                        appBarMenuState.value = false
+                        onActionButtonClicked(EnumAppBarAction.FAVORITE)
+                    }
+                    AppDropDownMenuItem("About", Icons.Default.Info) {
+                        appBarMenuState.value = false
+                        onActionButtonClicked(EnumAppBarAction.ABOUT)
+                    }
+                    AppDropDownMenuItem("Settings", Icons.Default.Settings) {
+                        appBarMenuState.value = false
+                        onActionButtonClicked(EnumAppBarAction.SETTINGS)
+                    }
                 }
             }
         },
@@ -95,6 +126,22 @@ fun BaseAppBar(
                     )
                 }
             }
+        }
+    )
+}
+
+@Composable
+fun AppDropDownMenuItem(text: String, icon: ImageVector, onClickItem: () -> Unit) {
+    DropdownMenuItem(
+        leadingIcon = {
+            Icon(
+                imageVector = icon,
+                contentDescription = "Menu Icon"
+            )
+        },
+        text = { Text(text) },
+        onClick = {
+            onClickItem.invoke()
         }
     )
 }

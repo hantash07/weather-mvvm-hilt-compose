@@ -28,7 +28,7 @@ fun SearchScreen(navController: NavController) {
 
 @Preview
 @Composable
-fun ScreenContent(navController: NavController? = null) {
+private fun ScreenContent(navController: NavController? = null) {
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         topBar = {

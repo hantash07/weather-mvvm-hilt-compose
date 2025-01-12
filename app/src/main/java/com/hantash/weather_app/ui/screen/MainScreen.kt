@@ -228,10 +228,13 @@ private fun WeatherItem(weather: Item0) {
 }
 
 private fun navigateTo(navController: NavController?, enumAction: EnumAppBarAction) {
-    when(enumAction) {
-        EnumAppBarAction.SEARCH -> navController?.navigate(EnumScreen.SEARCH_SCREEN.name)
-        EnumAppBarAction.MORE -> {}
+    val screenName: String = when(enumAction) {
+        EnumAppBarAction.SEARCH -> EnumScreen.SEARCH_SCREEN.name
+        EnumAppBarAction.FAVORITE -> EnumScreen.FAVORITE_SCREEN.name
+        EnumAppBarAction.ABOUT -> EnumScreen.ABOUT_SCREEN.name
+        EnumAppBarAction.SETTINGS -> EnumScreen.SETTINGS_SCREEN.name
     }
+    navController?.navigate(screenName)
 }
 
 
