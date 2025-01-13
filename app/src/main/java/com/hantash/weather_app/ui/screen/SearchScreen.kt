@@ -15,11 +15,14 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.hantash.weather_app.model.Favorite
 import com.hantash.weather_app.ui.components.AppSearchField
 import com.hantash.weather_app.ui.components.BaseAppBar
 import com.hantash.weather_app.ui.navigation.EnumScreen
 import com.hantash.weather_app.utils.Constant
+import com.hantash.weather_app.viewmodel.FavoriteViewmodel
 
 @Composable
 fun SearchScreen(navController: NavController) {
@@ -42,8 +45,11 @@ private fun ScreenContent(navController: NavController? = null) {
         },
 
         content = { paddingValues ->
+            val viewModel = hiltViewModel<FavoriteViewmodel>()
+
             SearchCountry(Modifier.padding(paddingValues)) { searchValue ->
                 Log.d(Constant.APP_DEBUG, "Search Result = $searchValue")
+                viewModel.addFavorite(Favorite(cityName = searchValue))
 
                 navController?.currentBackStackEntry?.savedStateHandle?.set(Constant.KEY_COUNTRY, searchValue)
                 navController?.navigate(EnumScreen.MAIN_SCREEN.name)
