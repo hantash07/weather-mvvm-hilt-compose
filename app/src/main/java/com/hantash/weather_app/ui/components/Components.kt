@@ -1,6 +1,5 @@
 package com.hantash.weather_app.ui.components
 
-import android.util.Log
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -50,7 +49,6 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.sp
 import com.hantash.weather_app.R
 import com.hantash.weather_app.ui.navigation.EnumScreen
-import com.hantash.weather_app.utils.debug
 
 enum class EnumAppBarAction {
     SEARCH,
@@ -78,10 +76,6 @@ fun BaseAppBar(
     val appBarMenuState = remember {
         mutableStateOf(false)
     }
-    val favoriteState = remember {
-        mutableStateOf(isFavorite)
-    }
-    debug("isFavorite AppBar: $isFavorite")
 
     TopAppBar(
         modifier = Modifier
@@ -132,13 +126,13 @@ fun BaseAppBar(
         navigationIcon = {
             if (enumScreen == EnumScreen.MAIN_SCREEN) {
                 IconButton(onClick = {
-                    val action = if (favoriteState.value) EnumAction.REMOVE else EnumAction.ADD
+                    val action = if (isFavorite) EnumAction.REMOVE else EnumAction.ADD
                     onAddRemoveFavorite.invoke(action)
 
-                    favoriteState.value = !favoriteState.value
+//                    isFavorite = !isFavorite
                 }) {
                     Icon(
-                        imageVector = if (favoriteState.value) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
+                        imageVector = if (isFavorite) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
                         contentDescription = "Favorite Icon",
                         tint = Color.Red.copy(.7f)
                     )

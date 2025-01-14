@@ -56,7 +56,6 @@ import com.hantash.weather_app.utils.generateImageUrl
 import com.hantash.weather_app.utils.showToast
 import com.hantash.weather_app.viewmodel.FavoriteViewmodel
 import com.hantash.weather_app.viewmodel.WeatherViewModel
-import javax.annotation.meta.When
 
 @Composable
 fun MainScreen(navController: NavController, countryName: String? = null) {
@@ -90,7 +89,6 @@ private fun ScreenContent(
     val context = LocalContext.current
     val viewModel = hiltViewModel<FavoriteViewmodel>()
     viewModel.isFavorite(city = city?.name ?: "")
-    debug("isFavorite: ${viewModel.isFavoriteState.collectAsState().value}")
 
     Scaffold(
         topBar = {
