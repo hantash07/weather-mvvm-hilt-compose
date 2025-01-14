@@ -1,5 +1,6 @@
 package com.hantash.weather_app.ui.screen
 
+import android.content.Context
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -18,10 +19,12 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.produceState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -35,18 +38,25 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.hantash.weather_app.R
 import com.hantash.weather_app.data.api.ResultAPI
+import com.hantash.weather_app.model.City
+import com.hantash.weather_app.model.Favorite
 import com.hantash.weather_app.model.Item0
 import com.hantash.weather_app.model.WeatherResponse
 import com.hantash.weather_app.ui.components.AppImage
 import com.hantash.weather_app.ui.components.AppTextIcon
 import com.hantash.weather_app.ui.components.BaseAppBar
+import com.hantash.weather_app.ui.components.EnumAction
 import com.hantash.weather_app.ui.components.EnumAppBarAction
 import com.hantash.weather_app.ui.navigation.EnumScreen
 import com.hantash.weather_app.utils.EnumDateFormat
+import com.hantash.weather_app.utils.debug
 import com.hantash.weather_app.utils.formatDateTime
 import com.hantash.weather_app.utils.formatDecimals
 import com.hantash.weather_app.utils.generateImageUrl
+import com.hantash.weather_app.utils.showToast
+import com.hantash.weather_app.viewmodel.FavoriteViewmodel
 import com.hantash.weather_app.viewmodel.WeatherViewModel
+import javax.annotation.meta.When
 
 @Composable
 fun MainScreen(navController: NavController, countryName: String? = null) {
@@ -71,17 +81,28 @@ private fun ScreenContent(
     navController: NavController? = null,
     weatherResponse: WeatherResponse? = null
 ) {
+    val city = weatherResponse?.city
     val weeklyWeatherList = weatherResponse?.list
     val weather = weeklyWeatherList?.first()
     val todayWeather = weather?.weather?.first()
     val title = "${weatherResponse?.city?.name}, ${weatherResponse?.city?.country}"
 
+    val context = LocalContext.current
+    val viewModel = hiltViewModel<FavoriteViewmodel>()
+    viewModel.isFavorite(city = city?.name ?: "")
+    debug("isFavorite: ${viewModel.isFavoriteState.collectAsState().value}")
+
     Scaffold(
         topBar = {
             BaseAppBar(
                 title = title,
+                isFavorite = viewModel.isFavoriteState.collectAsState().value,
                 onActionButtonClicked = { enumAction ->
                     navigateTo(navController, enumAction)
+                },
+                onAddRemoveFavorite = { action ->
+                    debug("isFavorite Action: ${action.name}")
+                    addRemoveFavorite(context, viewModel, action, city)
                 }
             )
         },
@@ -237,6 +258,18 @@ private fun navigateTo(navController: NavController?, enumAction: EnumAppBarActi
     navController?.navigate(screenName)
 }
 
+private fun addRemoveFavorite(context: Context, viewModel: FavoriteViewmodel, action: EnumAction, city: City?) {
+    when(action) {
+        EnumAction.ADD -> {
+            viewModel.addFavorite(Favorite(city = city?.name ?: "", country = city?.country ?: ""))
+            showToast(context, "City Added Into Favorite")
+        }
+        EnumAction.REMOVE -> {
+            viewModel.removeFavorite(Favorite(city = city?.name ?: "", country = city?.country ?: ""))
+            showToast(context, "City Removed From Favorite")
+        }
+    }
+}
 
 
 

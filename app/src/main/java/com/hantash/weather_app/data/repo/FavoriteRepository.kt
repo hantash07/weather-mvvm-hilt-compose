@@ -9,6 +9,7 @@ import kotlinx.coroutines.flow.flowOn
 
 class FavoriteRepository(private val favoriteDao: FavoriteDao) {
     fun getFavorites(): Flow<List<Favorite>> = favoriteDao.fetchFavorites().flowOn(Dispatchers.IO).conflate()
+    fun isFavorite(city: String) = favoriteDao.isFavorite(city).flowOn(Dispatchers.IO).conflate()
     suspend fun addFavorite(favorite: Favorite) = favoriteDao.insert(favorite)
     suspend fun removeFavorite(favorite: Favorite) = favoriteDao.delete(favorite)
 }

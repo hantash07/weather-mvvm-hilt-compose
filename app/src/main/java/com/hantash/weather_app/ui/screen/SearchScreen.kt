@@ -22,6 +22,7 @@ import com.hantash.weather_app.ui.components.AppSearchField
 import com.hantash.weather_app.ui.components.BaseAppBar
 import com.hantash.weather_app.ui.navigation.EnumScreen
 import com.hantash.weather_app.utils.Constant
+import com.hantash.weather_app.utils.debug
 import com.hantash.weather_app.viewmodel.FavoriteViewmodel
 
 @Composable
@@ -45,11 +46,8 @@ private fun ScreenContent(navController: NavController? = null) {
         },
 
         content = { paddingValues ->
-            val viewModel = hiltViewModel<FavoriteViewmodel>()
-
             SearchCountry(Modifier.padding(paddingValues)) { searchValue ->
-                Log.d(Constant.APP_DEBUG, "Search Result = $searchValue")
-                viewModel.addFavorite(Favorite(cityName = searchValue))
+                debug(message = "Search Result = $searchValue")
 
                 navController?.currentBackStackEntry?.savedStateHandle?.set(Constant.KEY_COUNTRY, searchValue)
                 navController?.navigate(EnumScreen.MAIN_SCREEN.name)

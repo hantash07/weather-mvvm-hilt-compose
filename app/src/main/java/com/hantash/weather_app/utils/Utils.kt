@@ -1,6 +1,8 @@
 package com.hantash.weather_app.utils
 
+import android.content.Context
 import android.util.Log
+import android.widget.Toast
 import java.time.Instant
 import java.time.LocalDateTime
 import java.time.ZoneId
@@ -35,4 +37,12 @@ fun formatDecimals(item: Double): String {
 
 fun generateImageUrl(image: String?): String {
     return "https://openweathermap.org/img/wn/$image.png"
+}
+
+fun showToast(context: Context, message: String) {
+    Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+}
+
+fun debug(message: String) {
+    Log.d(Constant.APP_DEBUG, message)
 }

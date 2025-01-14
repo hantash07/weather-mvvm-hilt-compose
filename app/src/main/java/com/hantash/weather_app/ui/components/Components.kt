@@ -1,5 +1,6 @@
 package com.hantash.weather_app.ui.components
 
+import android.util.Log
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -49,6 +50,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.sp
 import com.hantash.weather_app.R
 import com.hantash.weather_app.ui.navigation.EnumScreen
+import com.hantash.weather_app.utils.debug
 
 enum class EnumAppBarAction {
     SEARCH,
@@ -57,6 +59,10 @@ enum class EnumAppBarAction {
     SETTINGS
 }
 
+enum class EnumAction {
+    ADD,
+    REMOVE
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Preview
@@ -64,13 +70,19 @@ enum class EnumAppBarAction {
 fun BaseAppBar(
     title: String = "Country Name",
     enumScreen: EnumScreen = EnumScreen.MAIN_SCREEN,
+    isFavorite: Boolean = false,
     onActionButtonClicked: (EnumAppBarAction) -> Unit = {},
+    onAddRemoveFavorite: (EnumAction) -> Unit = {},
     onBackButtonClicked: () -> Unit = {}
 ) {
     val appBarMenuState = remember {
         mutableStateOf(false)
     }
-    
+    val favoriteState = remember {
+        mutableStateOf(isFavorite)
+    }
+    debug("isFavorite AppBar: $isFavorite")
+
     TopAppBar(
         modifier = Modifier
             .shadow(elevation = 8.dp),
@@ -100,7 +112,7 @@ fun BaseAppBar(
                 DropdownMenu(
                     modifier = Modifier.background(color = Color.White),
                     expanded = appBarMenuState.value,
-                    onDismissRequest = {appBarMenuState.value = false}
+                    onDismissRequest = { appBarMenuState.value = false }
                 ) {
                     AppDropDownMenuItem("Favorites", Icons.Default.Favorite) {
                         appBarMenuState.value = false
@@ -118,11 +130,24 @@ fun BaseAppBar(
             }
         },
         navigationIcon = {
-            IconButton(onClick = { onBackButtonClicked.invoke() }) {
-                if (enumScreen != EnumScreen.MAIN_SCREEN) {
+            if (enumScreen == EnumScreen.MAIN_SCREEN) {
+                IconButton(onClick = {
+                    val action = if (favoriteState.value) EnumAction.REMOVE else EnumAction.ADD
+                    onAddRemoveFavorite.invoke(action)
+
+                    favoriteState.value = !favoriteState.value
+                }) {
+                    Icon(
+                        imageVector = if (favoriteState.value) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
+                        contentDescription = "Favorite Icon",
+                        tint = Color.Red.copy(.7f)
+                    )
+                }
+            } else {
+                IconButton(onClick = { onBackButtonClicked.invoke() }) {
                     Icon(
                         imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                        contentDescription = "Search Icon"
+                        contentDescription = "Back Icon"
                     )
                 }
             }
