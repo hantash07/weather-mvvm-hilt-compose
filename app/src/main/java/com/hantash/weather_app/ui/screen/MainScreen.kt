@@ -99,7 +99,7 @@ private fun ScreenContent(
                     navigateTo(navController, enumAction)
                 },
                 onAddRemoveFavorite = { action ->
-                    debug("isFavorite Action: ${action.name}")
+                    debug("Favorite Action: ${action.name}")
                     addRemoveFavorite(context, viewModel, action, city)
                 }
             )

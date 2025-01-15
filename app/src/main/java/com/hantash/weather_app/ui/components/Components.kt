@@ -25,6 +25,7 @@ import androidx.compose.ui.unit.dp
 import coil3.compose.rememberAsyncImagePainter
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -39,11 +40,13 @@ import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.RadioButton
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.sp
@@ -60,6 +63,11 @@ enum class EnumAppBarAction {
 enum class EnumAction {
     ADD,
     REMOVE
+}
+
+enum class EnumUnit(val unit: String) {
+    FAHRENHEIT("Fahrenheit °F"),
+    CELSIUS("Celsius °C")
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -128,8 +136,6 @@ fun BaseAppBar(
                 IconButton(onClick = {
                     val action = if (isFavorite) EnumAction.REMOVE else EnumAction.ADD
                     onAddRemoveFavorite.invoke(action)
-
-//                    isFavorite = !isFavorite
                 }) {
                     Icon(
                         imageVector = if (isFavorite) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
@@ -223,6 +229,34 @@ fun AppSearchField(
         ),
         keyboardActions = keyboardActions,
     )
+}
+
+@Preview(showBackground = true)
+@Composable
+fun AppRadioButton(
+    enumUnit: EnumUnit = EnumUnit.CELSIUS,
+    isSelected: Boolean = false,
+    onClickRadioBtn: (EnumUnit) -> Unit = {}
+) {
+    Row(
+        modifier = Modifier.clickable {
+            onClickRadioBtn.invoke(enumUnit)
+        },
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        RadioButton(
+            onClick = {onClickRadioBtn.invoke(enumUnit)},
+            selected = isSelected
+        )
+        Text(
+            modifier = Modifier.padding(end = 16.dp),
+            text = enumUnit.unit,
+            style = TextStyle(
+                fontSize = 14.sp,
+                fontWeight = FontWeight.Medium
+            )
+        )
+    }
 }
 
 
