@@ -68,6 +68,10 @@ dependencies {
     implementation(libs.androidx.room.ktx)
     kapt(libs.androidx.room.compiler)
 
+    //DataStore
+    implementation(libs.androidx.datastore)
+//    implementation(libs.androidx.datastore.core)
+
     //Retrofit
     implementation(libs.retrofit2.retrofit)
     implementation(libs.retrofit2.converter)

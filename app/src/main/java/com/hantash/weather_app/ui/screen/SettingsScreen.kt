@@ -10,16 +10,15 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.hantash.weather_app.ui.components.AppRadioButton
 import com.hantash.weather_app.ui.components.BaseAppBar
 import com.hantash.weather_app.ui.components.EnumUnit
 import com.hantash.weather_app.ui.navigation.EnumScreen
+import com.hantash.weather_app.viewmodel.SettingsViewmodel
 
 @Composable
 fun SettingsScreen(navController: NavController) {
@@ -29,6 +28,7 @@ fun SettingsScreen(navController: NavController) {
 @Preview(showBackground = true)
 @Composable
 private fun ScreenContent(navController: NavController? = null) {
+    val viewmodel = hiltViewModel<SettingsViewmodel>()
     val radioOptionState = remember {
         mutableStateOf(EnumUnit.CELSIUS)
     }
@@ -50,7 +50,7 @@ private fun ScreenContent(navController: NavController? = null) {
                     .padding(16.dp)
             ) {
                 Text(
-                    text = "Measurement Units",
+                    text = "Temperature Units",
                     style = MaterialTheme.typography.titleMedium
                 )
                 AppRadioButton(
@@ -58,6 +58,7 @@ private fun ScreenContent(navController: NavController? = null) {
                     radioOptionState.value == EnumUnit.CELSIUS,
                     onClickRadioBtn = {
                         radioOptionState.value = EnumUnit.CELSIUS
+                        viewmodel.changeTempUnit(EnumUnit.CELSIUS.unit)
                     }
                 )
                 AppRadioButton(
@@ -65,6 +66,7 @@ private fun ScreenContent(navController: NavController? = null) {
                     radioOptionState.value == EnumUnit.FAHRENHEIT,
                     onClickRadioBtn = {
                         radioOptionState.value = EnumUnit.FAHRENHEIT
+                        viewmodel.changeTempUnit(EnumUnit.FAHRENHEIT.unit)
                     }
                 )
             }

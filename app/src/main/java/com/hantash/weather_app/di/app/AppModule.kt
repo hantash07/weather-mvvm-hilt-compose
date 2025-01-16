@@ -1,11 +1,14 @@
 package com.hantash.weather_app.di.app
 
 import android.content.Context
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.Preferences
 import androidx.room.Room
 import com.hantash.weather_app.data.api.WeatherAPI
 import com.hantash.weather_app.data.db.FavoriteDao
 import com.hantash.weather_app.data.db.LocalDatabase
 import com.hantash.weather_app.utils.Constant
+import com.hantash.weather_app.utils.dataStore
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -47,6 +50,12 @@ class AppModule {
     @AppScope
     fun favoriteDao(localDatabase: LocalDatabase): FavoriteDao {
         return localDatabase.favoriteDao()
+    }
+
+    @Provides
+    @AppScope
+    fun dataStore(@ApplicationContext context: Context): DataStore<Preferences> {
+        return context.dataStore
     }
 
 }

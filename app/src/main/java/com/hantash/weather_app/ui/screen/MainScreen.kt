@@ -47,6 +47,7 @@ import com.hantash.weather_app.ui.components.AppTextIcon
 import com.hantash.weather_app.ui.components.BaseAppBar
 import com.hantash.weather_app.ui.components.EnumAction
 import com.hantash.weather_app.ui.components.EnumAppBarAction
+import com.hantash.weather_app.ui.components.EnumUnit
 import com.hantash.weather_app.ui.navigation.EnumScreen
 import com.hantash.weather_app.utils.EnumDateFormat
 import com.hantash.weather_app.utils.debug
@@ -55,6 +56,7 @@ import com.hantash.weather_app.utils.formatDecimals
 import com.hantash.weather_app.utils.generateImageUrl
 import com.hantash.weather_app.utils.showToast
 import com.hantash.weather_app.viewmodel.FavoriteViewmodel
+import com.hantash.weather_app.viewmodel.SettingsViewmodel
 import com.hantash.weather_app.viewmodel.WeatherViewModel
 
 @Composable
@@ -89,6 +91,10 @@ private fun ScreenContent(
     val context = LocalContext.current
     val viewModel = hiltViewModel<FavoriteViewmodel>()
     viewModel.isFavorite(city = city?.name ?: "")
+
+    val viewmodelSettings = hiltViewModel<SettingsViewmodel>()
+    val unit = viewmodelSettings.getTempUnit().collectAsState(EnumUnit.CELSIUS.unit).value
+    debug("Temp Unit: $unit")
 
     Scaffold(
         topBar = {
