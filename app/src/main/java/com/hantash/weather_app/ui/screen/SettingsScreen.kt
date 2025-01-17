@@ -7,31 +7,33 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.hantash.weather_app.ui.components.AppRadioButton
 import com.hantash.weather_app.ui.components.BaseAppBar
 import com.hantash.weather_app.ui.components.EnumUnit
 import com.hantash.weather_app.ui.navigation.EnumScreen
+import com.hantash.weather_app.utils.debug
 import com.hantash.weather_app.viewmodel.SettingsViewmodel
 
 @Composable
-fun SettingsScreen(navController: NavController) {
-    ScreenContent(navController)
+fun SettingsScreen(navController: NavController, viewmodel: SettingsViewmodel) {
+    ScreenContent(navController, viewmodel)
 }
 
-@Preview(showBackground = true)
 @Composable
-private fun ScreenContent(navController: NavController? = null) {
-    val viewmodel = hiltViewModel<SettingsViewmodel>()
+private fun ScreenContent(navController: NavController, viewmodel: SettingsViewmodel) {
     val radioOptionState = remember {
         mutableStateOf(EnumUnit.CELSIUS)
     }
+
+    val savedUnit: EnumUnit = viewmodel.getTempUnit().collectAsState(EnumUnit.CELSIUS).value
+    radioOptionState.value = savedUnit
+    debug("Saved Unit: ${savedUnit.name}")
 
     Scaffold (
         topBar = {
@@ -39,7 +41,7 @@ private fun ScreenContent(navController: NavController? = null) {
                 title = "Settings",
                 enumScreen = EnumScreen.SETTINGS_SCREEN,
                 onBackButtonClicked = {
-                    navController?.popBackStack()
+                    navController.popBackStack()
                 }
             )
         },
@@ -58,7 +60,7 @@ private fun ScreenContent(navController: NavController? = null) {
                     radioOptionState.value == EnumUnit.CELSIUS,
                     onClickRadioBtn = {
                         radioOptionState.value = EnumUnit.CELSIUS
-                        viewmodel.changeTempUnit(EnumUnit.CELSIUS.unit)
+                        viewmodel.changeTempUnit(EnumUnit.CELSIUS)
                     }
                 )
                 AppRadioButton(
@@ -66,7 +68,7 @@ private fun ScreenContent(navController: NavController? = null) {
                     radioOptionState.value == EnumUnit.FAHRENHEIT,
                     onClickRadioBtn = {
                         radioOptionState.value = EnumUnit.FAHRENHEIT
-                        viewmodel.changeTempUnit(EnumUnit.FAHRENHEIT.unit)
+                        viewmodel.changeTempUnit(EnumUnit.FAHRENHEIT)
                     }
                 )
             }

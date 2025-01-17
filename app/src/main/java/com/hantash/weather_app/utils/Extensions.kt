@@ -7,3 +7,9 @@ import androidx.datastore.preferences.preferencesDataStore
 
 
 val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = Constant.PREFERENCE_NAME)
+
+fun String.capsFirstLetter(): String {
+    return this.lowercase().replaceFirstChar {
+        if (it.isLowerCase()) it.titlecase() else it.toString()
+    }
+}

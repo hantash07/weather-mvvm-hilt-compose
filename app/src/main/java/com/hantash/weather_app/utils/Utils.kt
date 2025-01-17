@@ -3,6 +3,7 @@ package com.hantash.weather_app.utils
 import android.content.Context
 import android.util.Log
 import android.widget.Toast
+import com.hantash.weather_app.ui.components.EnumUnit
 import java.time.Instant
 import java.time.LocalDateTime
 import java.time.ZoneId
@@ -33,6 +34,15 @@ fun getCurrentTimeStamp(): Long {
 
 fun formatDecimals(item: Double): String {
     return "%.0f".format(item)
+}
+
+fun formatTemp(temp: Double, enumUnit: EnumUnit): String {
+    return if (enumUnit == EnumUnit.FAHRENHEIT)
+        "%.0f${enumUnit.unit}".format(temp)
+    else {
+        val celsius = (temp - 32) / 1.8 //Converting Fahrenheit into Celsius
+        "%.0f${enumUnit.unit}".format(celsius)
+    }
 }
 
 fun generateImageUrl(image: String?): String {

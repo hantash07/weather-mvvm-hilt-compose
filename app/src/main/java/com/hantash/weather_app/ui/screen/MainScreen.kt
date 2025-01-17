@@ -31,7 +31,6 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -52,7 +51,7 @@ import com.hantash.weather_app.ui.navigation.EnumScreen
 import com.hantash.weather_app.utils.EnumDateFormat
 import com.hantash.weather_app.utils.debug
 import com.hantash.weather_app.utils.formatDateTime
-import com.hantash.weather_app.utils.formatDecimals
+import com.hantash.weather_app.utils.formatTemp
 import com.hantash.weather_app.utils.generateImageUrl
 import com.hantash.weather_app.utils.showToast
 import com.hantash.weather_app.viewmodel.FavoriteViewmodel
@@ -72,29 +71,27 @@ fun MainScreen(navController: NavController, countryName: String? = null) {
     if (weatherData.isLoading && weatherData.data != null) {
         CircularProgressIndicator()
     } else if (weatherData.data != null) {
-        ScreenContent(navController, weatherData.data)
+        ScreenContent(navController, weatherData.data!!)
     }
 }
 
-@Preview
 @Composable
 private fun ScreenContent(
-    navController: NavController? = null,
-    weatherResponse: WeatherResponse? = null
+    navController: NavController,
+    weatherResponse: WeatherResponse
 ) {
-    val city = weatherResponse?.city
-    val weeklyWeatherList = weatherResponse?.list
-    val weather = weeklyWeatherList?.first()
-    val todayWeather = weather?.weather?.first()
-    val title = "${weatherResponse?.city?.name}, ${weatherResponse?.city?.country}"
+    val city = weatherResponse.city
+    val weeklyWeatherList = weatherResponse.list
+    val weather = weeklyWeatherList.first()
+    val todayWeather = weather.weather.first()
+    val title = "${weatherResponse.city.name}, ${weatherResponse.city.country}"
 
     val context = LocalContext.current
     val viewModel = hiltViewModel<FavoriteViewmodel>()
-    viewModel.isFavorite(city = city?.name ?: "")
+    viewModel.isFavorite(city = city.name)
 
     val viewmodelSettings = hiltViewModel<SettingsViewmodel>()
-    val unit = viewmodelSettings.getTempUnit().collectAsState(EnumUnit.CELSIUS.unit).value
-    debug("Temp Unit: $unit")
+    val enumUnit: EnumUnit = viewmodelSettings.getTempUnit().collectAsState(EnumUnit.CELSIUS).value
 
     Scaffold(
         topBar = {
@@ -120,7 +117,7 @@ private fun ScreenContent(
             ) {
                 Text(
                     modifier = Modifier.padding(top = 16.dp),
-                    text = formatDateTime(weatherResponse?.list?.first()?.dt?.toLong(), EnumDateFormat.EEE_D_MMM),
+                    text = formatDateTime(weatherResponse.list.first().dt.toLong(), EnumDateFormat.EEE_D_MMM),
                     style = MaterialTheme.typography.titleMedium
                 )
 
@@ -135,14 +132,14 @@ private fun ScreenContent(
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.Center
                     ) {
-                        AppImage(url = generateImageUrl(todayWeather?.icon))
+                        AppImage(url = generateImageUrl(todayWeather.icon))
                         Text(
-                            text = "${formatDecimals(weatherResponse?.list?.first()?.temp?.day ?: 0.0)}°",
+                            text = formatTemp(weatherResponse.list.first().temp.day, enumUnit),
                             style = MaterialTheme.typography.headlineLarge,
                             fontWeight = FontWeight.ExtraBold
                         )
                         Text(
-                            text = todayWeather?.main.toString(),
+                            text = todayWeather.main,
                             style = MaterialTheme.typography.titleMedium,
                             fontStyle = FontStyle.Italic
                         )
@@ -156,12 +153,12 @@ private fun ScreenContent(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    AppTextIcon(text = "${weather?.humidity}%", resourceId = R.drawable.ic_humidity)
+                    AppTextIcon(text = "${weather.humidity}%", resourceId = R.drawable.ic_humidity)
                     AppTextIcon(
-                        text = "${weather?.pressure} psi",
+                        text = "${weather.pressure} psi",
                         resourceId = R.drawable.ic_pressure
                     )
-                    AppTextIcon(text = "${weather?.humidity}mph", resourceId = R.drawable.ic_wind)
+                    AppTextIcon(text = "${weather.speed}" + if (enumUnit == EnumUnit.FAHRENHEIT) "mph" else "m/s", resourceId = R.drawable.ic_wind)
                 }
                 HorizontalDivider()
 
@@ -173,18 +170,18 @@ private fun ScreenContent(
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     AppTextIcon(
-                        text = formatDateTime(weather?.sunrise?.toLong(), EnumDateFormat.HH_MM_A),
+                        text = formatDateTime(weather.sunrise.toLong(), EnumDateFormat.HH_MM_A),
                         resourceId = R.drawable.ic_sunrise
                     )
                     AppTextIcon(
-                        text = formatDateTime(weather?.sunset?.toLong(), EnumDateFormat.HH_MM_A),
+                        text = formatDateTime(weather.sunset.toLong(), EnumDateFormat.HH_MM_A),
                         resourceId = R.drawable.ic_sunset
                     )
                 }
 
                 LazyColumn(modifier = Modifier.fillMaxWidth()) {
-                    items(items = weeklyWeatherList ?: emptyList()) { weather ->
-                        WeatherItem(weather)
+                    items(items = weeklyWeatherList) { weather ->
+                        WeatherItem(weather, enumUnit)
                     }
                 }
             }
@@ -193,7 +190,7 @@ private fun ScreenContent(
 }
 
 @Composable
-private fun WeatherItem(weather: Item0) {
+private fun WeatherItem(weather: Item0, enumUnit: EnumUnit) {
     Column {
         Row(
             modifier = Modifier
@@ -233,14 +230,14 @@ private fun WeatherItem(weather: Item0) {
                         fontWeight = FontWeight.SemiBold
                     )
                 ) {
-                    append("${formatDecimals(weather.temp.max)}°")
+                    append("${formatTemp(weather.temp.max, enumUnit)}°")
                 }
                 withStyle(
                     style = SpanStyle(
                         color = Color.Gray,
                     )
                 ) {
-                    append("${formatDecimals(weather.temp.min)}°")
+                    append("${formatTemp(weather.temp.min, enumUnit)}°")
                 }
             })
         }

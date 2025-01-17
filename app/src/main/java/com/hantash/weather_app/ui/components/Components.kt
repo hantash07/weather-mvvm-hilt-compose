@@ -52,6 +52,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.sp
 import com.hantash.weather_app.R
 import com.hantash.weather_app.ui.navigation.EnumScreen
+import com.hantash.weather_app.utils.capsFirstLetter
 
 enum class EnumAppBarAction {
     SEARCH,
@@ -66,8 +67,19 @@ enum class EnumAction {
 }
 
 enum class EnumUnit(val unit: String) {
-    FAHRENHEIT("Fahrenheit °F"),
-    CELSIUS("Celsius °C")
+    FAHRENHEIT("°F"),
+    CELSIUS("°C");
+
+//    companion object {
+//        fun fromString(value: String): EnumUnit {
+//            return try {
+//                EnumUnit.valueOf(value.uppercase()) // Case-insensitive conversion
+//            } catch (e: IllegalArgumentException) {
+//                FAHRENHEIT // Default Value
+////                throw IllegalArgumentException("Invalid EnumUnit value: $value")
+//            }
+//        }
+//    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -250,7 +262,7 @@ fun AppRadioButton(
         )
         Text(
             modifier = Modifier.padding(end = 16.dp),
-            text = enumUnit.unit,
+            text = "${enumUnit.name.capsFirstLetter()} ${enumUnit.unit}",
             style = TextStyle(
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Medium
