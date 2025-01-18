@@ -61,6 +61,7 @@ import com.hantash.weather_app.viewmodel.WeatherViewModel
 @Composable
 fun MainScreen(navController: NavController, countryName: String? = null) {
     val viewModel = hiltViewModel<WeatherViewModel>()
+    debug("Country: $countryName")
 
     val weatherData = produceState<ResultAPI<WeatherResponse, Boolean, Exception>>(
         initialValue = ResultAPI(isLoading = true)

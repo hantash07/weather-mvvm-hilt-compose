@@ -66,13 +66,11 @@ private fun ScreenContent(navController: NavController? = null) {
                 SearchCountry { searchValue ->
                     debug(message = "Search Result = $searchValue")
 
-                    navController?.currentBackStackEntry?.savedStateHandle?.set(
+                    navController?.previousBackStackEntry?.savedStateHandle?.set(
                         Constant.KEY_COUNTRY,
                         searchValue
                     )
-                    navController?.navigate(EnumScreen.MAIN_SCREEN.name) {
-                        popUpTo(EnumScreen.SETTINGS_SCREEN.name) {inclusive = true}
-                    }
+                    navController?.popBackStack()
                 }
             }
         }

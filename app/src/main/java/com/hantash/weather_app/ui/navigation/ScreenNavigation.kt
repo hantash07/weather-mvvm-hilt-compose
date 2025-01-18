@@ -28,7 +28,7 @@ fun ScreenNavigation() {
         composable(
             route = EnumScreen.MAIN_SCREEN.name
         ) {
-            val country = navController.previousBackStackEntry?.savedStateHandle?.get<String>(Constant.KEY_COUNTRY)
+            val country = navController.currentBackStackEntry?.savedStateHandle?.get<String>(Constant.KEY_COUNTRY)
             MainScreen(navController, country)
         }
 
