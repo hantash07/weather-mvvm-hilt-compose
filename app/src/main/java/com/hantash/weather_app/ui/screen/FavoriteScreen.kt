@@ -67,7 +67,9 @@ private fun ScreenContent(navController: NavController? = null) {
                 Modifier.padding(padding), favoriteList,
                 onShowWeather = { favorite ->
                     navController?.currentBackStackEntry?.savedStateHandle?.set(Constant.KEY_COUNTRY, favorite.city)
-                    navController?.navigate(EnumScreen.MAIN_SCREEN.name)
+                    navController?.navigate(EnumScreen.MAIN_SCREEN.name) {
+                        popUpTo(EnumScreen.FAVORITE_SCREEN.name) {inclusive = true}
+                    }
                 },
                 onRemove = { favorite ->
                     viewModel.removeFavorite(favorite)

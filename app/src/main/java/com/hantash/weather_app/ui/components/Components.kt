@@ -30,12 +30,15 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CornerSize
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material3.Button
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.MaterialTheme
@@ -53,6 +56,7 @@ import androidx.compose.ui.unit.sp
 import com.hantash.weather_app.R
 import com.hantash.weather_app.ui.navigation.EnumScreen
 import com.hantash.weather_app.utils.capsFirstLetter
+import com.hantash.weather_app.utils.showToast
 
 enum class EnumAppBarAction {
     SEARCH,
@@ -69,17 +73,6 @@ enum class EnumAction {
 enum class EnumUnit(val unit: String) {
     FAHRENHEIT("°F"),
     CELSIUS("°C");
-
-//    companion object {
-//        fun fromString(value: String): EnumUnit {
-//            return try {
-//                EnumUnit.valueOf(value.uppercase()) // Case-insensitive conversion
-//            } catch (e: IllegalArgumentException) {
-//                FAHRENHEIT // Default Value
-////                throw IllegalArgumentException("Invalid EnumUnit value: $value")
-//            }
-//        }
-//    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -221,13 +214,11 @@ fun AppSearchField(
     label: String = "",
     onValueChange: (String) -> Unit = {},
     keyboardType: KeyboardType = KeyboardType.Text,
-    imeActions: ImeAction = ImeAction.Search,
+    imeActions: ImeAction = ImeAction.Done,
     keyboardActions: KeyboardActions = KeyboardActions.Default,
 ) {
     OutlinedTextField(
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(16.dp),
+        modifier = modifier,
         value = value,
         onValueChange = onValueChange,
         label = { Text(label) },
@@ -268,6 +259,22 @@ fun AppRadioButton(
                 fontWeight = FontWeight.Medium
             )
         )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun AppButton(
+    modifier: Modifier = Modifier,
+    title: String = "Search",
+    onClickBtn: () -> Unit = {}
+) {
+    Button(
+        modifier = modifier,
+        shape = RoundedCornerShape(corner = CornerSize(4.dp)),
+        onClick = {onClickBtn.invoke()}
+    ) {
+        Text(title, style = MaterialTheme.typography.titleMedium)
     }
 }
 
