@@ -1,3 +1,12 @@
+import java.util.Properties
+
+val secretsFile = rootProject.file("secrets.properties") // Load secrets.properties
+val secretsProperties = Properties()
+
+if (secretsFile.exists()) {
+    secretsProperties.load(secretsFile.inputStream())
+}
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -21,12 +30,21 @@ android {
     }
 
     buildTypes {
+        debug {
+            isMinifyEnabled = false
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
+            buildConfigField("String", "WEATHER_API_KEY", "\"${secretsProperties["WEATHER_API_KEY"]}\"")
+        }
         release {
             isMinifyEnabled = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            buildConfigField("String", "WEATHER_API_KEY", "\"${secretsProperties["WEATHER_API_KEY"]}\"")
         }
     }
     compileOptions {
@@ -38,6 +56,7 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
 }
 
