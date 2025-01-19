@@ -3,8 +3,10 @@ package com.hantash.weather_app.ui.screen
 import android.content.Context
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -19,8 +21,8 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.produceState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -30,18 +32,20 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.hantash.weather_app.R
-import com.hantash.weather_app.data.api.ResultAPI
+import com.hantash.weather_app.data.api.ResponseApi
 import com.hantash.weather_app.model.City
 import com.hantash.weather_app.model.Favorite
 import com.hantash.weather_app.model.Item0
 import com.hantash.weather_app.model.WeatherResponse
 import com.hantash.weather_app.ui.components.AppImage
+import com.hantash.weather_app.ui.components.AppLoader
 import com.hantash.weather_app.ui.components.AppTextIcon
 import com.hantash.weather_app.ui.components.BaseAppBar
 import com.hantash.weather_app.ui.components.EnumAction
@@ -49,6 +53,7 @@ import com.hantash.weather_app.ui.components.EnumAppBarAction
 import com.hantash.weather_app.ui.components.EnumUnit
 import com.hantash.weather_app.ui.navigation.EnumScreen
 import com.hantash.weather_app.utils.EnumDateFormat
+import com.hantash.weather_app.utils.capsEachWord
 import com.hantash.weather_app.utils.debug
 import com.hantash.weather_app.utils.formatDateTime
 import com.hantash.weather_app.utils.formatTemp
@@ -63,36 +68,40 @@ fun MainScreen(navController: NavController, countryName: String? = null) {
     val viewModel = hiltViewModel<WeatherViewModel>()
     debug("Country: $countryName")
 
-    val weatherData = produceState<ResultAPI<WeatherResponse, Boolean, Exception>>(
-        initialValue = ResultAPI(isLoading = true)
-    ) {
-        value = viewModel.fetchCurrentWeather(countryName ?: "Istanbul")
-    }.value
+    val weatherDataState = viewModel.weatherDataState.collectAsState()
+    when (weatherDataState.value) {
+        is ResponseApi.Loading -> AppLoader()
 
-    if (weatherData.isLoading && weatherData.data != null) {
-        CircularProgressIndicator()
-    } else if (weatherData.data != null) {
-        ScreenContent(navController, weatherData.data!!)
+        is ResponseApi.Success -> {
+            ScreenContent(
+                navController,
+                (weatherDataState.value as ResponseApi.Success<WeatherResponse>).data
+            )
+        }
+
+        is ResponseApi.Error -> {
+            val message = (weatherDataState.value as ResponseApi.Error<WeatherResponse>).message
+            ScreenContent(navController, errorMessage = message)
+        }
+    }
+
+    LaunchedEffect(Unit) {
+        viewModel.fetchCurrentWeather(countryName ?: "Lahore")
     }
 }
 
 @Composable
 private fun ScreenContent(
     navController: NavController,
-    weatherResponse: WeatherResponse
+    weatherResponse: WeatherResponse? = null,
+    errorMessage: String? = null
 ) {
-    val city = weatherResponse.city
-    val weeklyWeatherList = weatherResponse.list
-    val weather = weeklyWeatherList.first()
-    val todayWeather = weather.weather.first()
-    val title = "${weatherResponse.city.name}, ${weatherResponse.city.country}"
+    val city = weatherResponse?.city
+    val title = if (weatherResponse != null) "${weatherResponse.city.name}, ${weatherResponse.city.country}" else ""
 
     val context = LocalContext.current
     val viewModel = hiltViewModel<FavoriteViewmodel>()
-    viewModel.isFavorite(city = city.name)
-
-    val viewmodelSettings = hiltViewModel<SettingsViewmodel>()
-    val enumUnit: EnumUnit = viewmodelSettings.getTempUnit().collectAsState(EnumUnit.CELSIUS).value
+    if (city != null) viewModel.isFavorite(city = city.name)
 
     Scaffold(
         topBar = {
@@ -109,85 +118,124 @@ private fun ScreenContent(
             )
         },
         content = { innerPadding ->
-            Column(
+            Box(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(innerPadding),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center
+                    .fillMaxSize()
+                    .padding(innerPadding)
             ) {
-                Text(
-                    modifier = Modifier.padding(top = 16.dp),
-                    text = formatDateTime(weatherResponse.list.first().dt.toLong(), EnumDateFormat.EEE_D_MMM),
-                    style = MaterialTheme.typography.titleMedium
-                )
-
-                Surface(
-                    modifier = Modifier
-                        .padding(8.dp)
-                        .size(200.dp),
-                    shape = CircleShape,
-                    color = Color(0xFFFFC400)
-                ) {
-                    Column(
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.Center
-                    ) {
-                        AppImage(url = generateImageUrl(todayWeather.icon))
-                        Text(
-                            text = formatTemp(weatherResponse.list.first().temp.day, enumUnit),
-                            style = MaterialTheme.typography.headlineLarge,
-                            fontWeight = FontWeight.ExtraBold
+                if (weatherResponse != null) {
+                    WeatherContent(weatherResponse)
+                } else {
+                    Text(
+                        modifier = Modifier
+                            .padding(16.dp)
+                            .align(Alignment.Center),
+                        text = errorMessage?.capsEachWord() ?: "Unknown Error",
+                        textAlign = TextAlign.Center,
+                        style = TextStyle(
+                            fontSize = 18.sp,
+                            fontStyle = FontStyle.Italic,
+                            fontWeight = FontWeight.SemiBold,
+                            color = Color.Red.copy(alpha = 0.8f),
                         )
-                        Text(
-                            text = todayWeather.main,
-                            style = MaterialTheme.typography.titleMedium,
-                            fontStyle = FontStyle.Italic
-                        )
-                    }
-                }
-
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp, vertical = 16.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    AppTextIcon(text = "${weather.humidity}%", resourceId = R.drawable.ic_humidity)
-                    AppTextIcon(
-                        text = "${weather.pressure} psi",
-                        resourceId = R.drawable.ic_pressure
                     )
-                    AppTextIcon(text = "${weather.speed}" + if (enumUnit == EnumUnit.FAHRENHEIT) "mph" else "m/s", resourceId = R.drawable.ic_wind)
-                }
-                HorizontalDivider()
-
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp, vertical = 10.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    AppTextIcon(
-                        text = formatDateTime(weather.sunrise.toLong(), EnumDateFormat.HH_MM_A),
-                        resourceId = R.drawable.ic_sunrise
-                    )
-                    AppTextIcon(
-                        text = formatDateTime(weather.sunset.toLong(), EnumDateFormat.HH_MM_A),
-                        resourceId = R.drawable.ic_sunset
-                    )
-                }
-
-                LazyColumn(modifier = Modifier.fillMaxWidth()) {
-                    items(items = weeklyWeatherList) { weather ->
-                        WeatherItem(weather, enumUnit)
-                    }
                 }
             }
         }
     )
+}
+
+@Composable
+private fun WeatherContent(weatherResponse: WeatherResponse) {
+    val viewmodelSettings = hiltViewModel<SettingsViewmodel>()
+    val enumUnit: EnumUnit = viewmodelSettings.getTempUnit().collectAsState(EnumUnit.CELSIUS).value
+
+    val weeklyWeatherList = weatherResponse.list
+    val weather = weeklyWeatherList.first()
+    val todayWeather = weather.weather.first()
+
+    Column(
+        modifier = Modifier
+            .fillMaxWidth(),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        Text(
+            modifier = Modifier.padding(top = 16.dp),
+            text = formatDateTime(
+                weatherResponse.list.first().dt.toLong(),
+                EnumDateFormat.EEE_D_MMM
+            ),
+            style = MaterialTheme.typography.titleMedium
+        )
+
+        Surface(
+            modifier = Modifier
+                .padding(8.dp)
+                .size(200.dp),
+            shape = CircleShape,
+            color = Color(0xFFFFC400)
+        ) {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ) {
+                AppImage(url = generateImageUrl(todayWeather.icon))
+                Text(
+                    text = formatTemp(weatherResponse.list.first().temp.day, enumUnit),
+                    style = MaterialTheme.typography.headlineLarge,
+                    fontWeight = FontWeight.ExtraBold
+                )
+                Text(
+                    text = todayWeather.main,
+                    style = MaterialTheme.typography.titleMedium,
+                    fontStyle = FontStyle.Italic
+                )
+            }
+        }
+
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 16.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            AppTextIcon(text = "${weather.humidity}%", resourceId = R.drawable.ic_humidity)
+            AppTextIcon(
+                text = "${weather.pressure} psi",
+                resourceId = R.drawable.ic_pressure
+            )
+            AppTextIcon(
+                text = "${weather.speed}" + if (enumUnit == EnumUnit.FAHRENHEIT) "mph" else "m/s",
+                resourceId = R.drawable.ic_wind
+            )
+        }
+        HorizontalDivider()
+
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 10.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            AppTextIcon(
+                text = formatDateTime(weather.sunrise.toLong(), EnumDateFormat.HH_MM_A),
+                resourceId = R.drawable.ic_sunrise
+            )
+            AppTextIcon(
+                text = formatDateTime(weather.sunset.toLong(), EnumDateFormat.HH_MM_A),
+                resourceId = R.drawable.ic_sunset
+            )
+        }
+
+        LazyColumn(modifier = Modifier.fillMaxWidth()) {
+            items(items = weeklyWeatherList) { weather ->
+                WeatherItem(weather, enumUnit)
+            }
+        }
+    }
 }
 
 @Composable
@@ -251,7 +299,7 @@ private fun WeatherItem(weather: Item0, enumUnit: EnumUnit) {
 }
 
 private fun navigateTo(navController: NavController?, enumAction: EnumAppBarAction) {
-    val screenName: String = when(enumAction) {
+    val screenName: String = when (enumAction) {
         EnumAppBarAction.SEARCH -> EnumScreen.SEARCH_SCREEN.name
         EnumAppBarAction.FAVORITE -> EnumScreen.FAVORITE_SCREEN.name
         EnumAppBarAction.ABOUT -> EnumScreen.ABOUT_SCREEN.name
@@ -260,15 +308,23 @@ private fun navigateTo(navController: NavController?, enumAction: EnumAppBarActi
     navController?.navigate(screenName)
 }
 
-private fun addRemoveFavorite(context: Context, viewModel: FavoriteViewmodel, action: EnumAction, city: City?) {
-    when(action) {
-        EnumAction.ADD -> {
-            viewModel.addFavorite(Favorite(city = city?.name ?: "", country = city?.country ?: ""))
-            showToast(context, "City Added Into Favorite")
-        }
-        EnumAction.REMOVE -> {
-            viewModel.removeFavorite(Favorite(city = city?.name ?: "", country = city?.country ?: ""))
-            showToast(context, "City Removed From Favorite")
+private fun addRemoveFavorite(
+    context: Context,
+    viewModel: FavoriteViewmodel,
+    action: EnumAction,
+    city: City?
+) {
+    if (city != null) {
+        when (action) {
+            EnumAction.ADD -> {
+                viewModel.addFavorite(Favorite(city = city.name, country = city.country))
+                showToast(context, "City Added Into Favorite")
+            }
+
+            EnumAction.REMOVE -> {
+                viewModel.removeFavorite(Favorite(city = city.name, country = city.country))
+                showToast(context, "City Removed From Favorite")
+            }
         }
     }
 }

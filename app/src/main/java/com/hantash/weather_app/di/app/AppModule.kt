@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.room.Room
+import com.hantash.weather_app.data.api.ErrorInterceptor
 import com.hantash.weather_app.data.api.WeatherAPI
 import com.hantash.weather_app.data.db.FavoriteDao
 import com.hantash.weather_app.data.db.LocalDatabase
@@ -14,6 +15,7 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
+import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
@@ -24,9 +26,14 @@ class AppModule {
     @Provides
     @AppScope
     fun retrofit(): Retrofit {
+        val okHttpClient = OkHttpClient.Builder()
+            .addInterceptor(ErrorInterceptor())
+            .build()
+
         return Retrofit.Builder()
             .baseUrl(Constant.BASE_URL)
             .addConverterFactory(GsonConverterFactory.create())
+            .client(okHttpClient)
             .build()
     }
 

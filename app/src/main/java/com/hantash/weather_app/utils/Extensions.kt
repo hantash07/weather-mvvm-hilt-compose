@@ -13,3 +13,8 @@ fun String.capsFirstLetter(): String {
         if (it.isLowerCase()) it.titlecase() else it.toString()
     }
 }
+
+fun String.capsEachWord(): String {
+    return  this.split(" ")
+        .joinToString(" ") { it.lowercase().replaceFirstChar {char -> char.uppercase() } }
+}

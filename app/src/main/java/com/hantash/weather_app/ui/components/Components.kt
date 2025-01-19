@@ -29,6 +29,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -39,6 +40,7 @@ import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.MaterialTheme
@@ -138,15 +140,17 @@ fun BaseAppBar(
         },
         navigationIcon = {
             if (enumScreen == EnumScreen.MAIN_SCREEN) {
-                IconButton(onClick = {
-                    val action = if (isFavorite) EnumAction.REMOVE else EnumAction.ADD
-                    onAddRemoveFavorite.invoke(action)
-                }) {
-                    Icon(
-                        imageVector = if (isFavorite) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
-                        contentDescription = "Favorite Icon",
-                        tint = Color.Red.copy(.7f)
-                    )
+                if (title.isNotEmpty()) {
+                    IconButton(onClick = {
+                        val action = if (isFavorite) EnumAction.REMOVE else EnumAction.ADD
+                        onAddRemoveFavorite.invoke(action)
+                    }) {
+                        Icon(
+                            imageVector = if (isFavorite) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
+                            contentDescription = "Favorite Icon",
+                            tint = Color.Red.copy(.7f)
+                        )
+                    }
                 }
             } else {
                 IconButton(onClick = { onBackButtonClicked.invoke() }) {
@@ -180,7 +184,7 @@ fun AppDropDownMenuItem(text: String, icon: ImageVector, onClickItem: () -> Unit
 @Composable
 fun AppImage(url: String) {
     Image(
-        modifier = Modifier.size(80.dp),
+        modifier = Modifier.size(90.dp),
         painter = rememberAsyncImagePainter(
             model = url
         ),
@@ -278,6 +282,15 @@ fun AppButton(
     }
 }
 
+@Preview(showBackground = true)
+@Composable
+fun AppLoader() {
+    Box(modifier = Modifier.fillMaxSize()) {
+        CircularProgressIndicator(
+            modifier = Modifier.align(Alignment.Center)
+        )
+    }
+}
 
 
 
