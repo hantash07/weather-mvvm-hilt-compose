@@ -15,3 +15,13 @@ designed using Jetpack Compose. This project demonstrates how to implement Hilt 
 - Kotlin Flow
 - Retrofit 
 - Gradle Version Catalogs for managing dependencies in a scalable way
+
+### Installation
+- Clone the repository
+  ```
+  git clone https://github.com/hantash07/weather-mvvm-hilt-compose.git
+  ```
+- Create your own API key from WeatherAPI (https://api.openweathermap.org/)
+
+### Contact
+If you have any questions, please contact [hantashnadeem@gmail.com].
