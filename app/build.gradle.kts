@@ -103,6 +103,9 @@ dependencies {
     //Navigation
     implementation(libs.androidx.navigation)
 
+    //Location API
+    implementation(libs.google.location)
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
